@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Interactive Quiz Engine</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Interactive Quiz Engine</h1>
+
+        <p class="subtitle">
+            Test your knowledge with our interactive quiz
+        </p>
+
+        <form action="/submit" method="POST">
+
+            {% for question in questions %}
+
+                {% set question_index = loop.index0 %}
+
+                <div class="question-card">
+
+                    <h2>
+                        {{ loop.index }}. {{ question.question }}
+                    </h2>
+
+                    {% for option in question.options %}
+
+                        <label class="option">
+
+                            <input
+                                type="radio"
+                                name="question_{{ question_index }}"
+                                value="{{ loop.index0 }}"
+                                required
+                            >
+
+                            {{ option }}
+
+                        </label>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endfor %}
+
+            <button type="submit">
+                Submit Quiz
+            </button>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>

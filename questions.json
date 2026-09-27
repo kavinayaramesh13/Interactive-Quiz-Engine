@@ -1,0 +1,52 @@
+[
+    {
+        "question": "What does AWS stand for?",
+        "options": [
+            "Amazon Web Services",
+            "Advanced Web System",
+            "Amazon Web System",
+            "Application Web Services"
+        ],
+        "answer": 0
+    },
+    {
+        "question": "Which language is primarily used for styling web pages?",
+        "options": [
+            "Python",
+            "CSS",
+            "Java",
+            "SQL"
+        ],
+        "answer": 1
+    },
+    {
+        "question": "Which tool is used for containerization?",
+        "options": [
+            "Docker",
+            "Jenkins",
+            "Terraform",
+            "Git"
+        ],
+        "answer": 0
+    },
+    {
+        "question": "Which system is commonly used for source code version control?",
+        "options": [
+            "Docker",
+            "Git",
+            "Kubernetes",
+            "Ansible"
+        ],
+        "answer": 1
+    },
+    {
+        "question": "Which technology is used for container orchestration?",
+        "options": [
+            "GitHub",
+            "Jenkins",
+            "Kubernetes",
+            "Terraform"
+        ],
+        "answer": 2
+    }
+]
