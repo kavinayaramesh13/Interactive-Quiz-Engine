@@ -1,0 +1,59 @@
+- name: Prepare Kubernetes nodes
+  hosts: kubernetes
+  become: true
+
+  tasks:
+    - name: Verify curl is available
+      ansible.builtin.command: curl --version
+      register: curl_check
+      changed_when: false
+
+    - name: Display curl version
+      ansible.builtin.debug:
+        msg: "{{ curl_check.stdout_lines[0] }}"
+
+- name: Install K3s control plane
+  hosts: control_plane
+  become: true
+
+  tasks:
+    - name: Install K3s server
+      ansible.builtin.shell: |
+        curl -sfL https://get.k3s.io | sh -s - server --write-kubeconfig-mode 644
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: Wait for K3s service
+      ansible.builtin.command: systemctl is-active k3s
+      register: k3s_status
+      retries: 12
+      delay: 5
+      until: k3s_status.stdout == "active"
+      changed_when: false
+
+    - name: Read K3s node token
+      ansible.builtin.slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: k3s_token
+
+- name: Install K3s worker
+  hosts: workers
+  become: true
+
+  vars:
+    k3s_token: "{{ hostvars[groups['control_plane'][0]]['k3s_token']['content'] | b64decode | trim }}"
+
+  tasks:
+    - name: Install K3s agent
+      ansible.builtin.shell: |
+        curl -sfL https://get.k3s.io | K3S_URL=https://{{ k3s_server_private_ip }}:6443 K3S_TOKEN="{{ k3s_token }}" sh -
+      args:
+        creates: /usr/local/bin/k3s-agent
+
+    - name: Wait for K3s agent service
+      ansible.builtin.command: systemctl is-active k3s-agent
+      register: k3s_agent_status
+      retries: 12
+      delay: 5
+      until: k3s_agent_status.stdout == "active"
+      changed_when: false
