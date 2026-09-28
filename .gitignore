@@ -1,7 +1,21 @@
-venv/
+# Python
 __pycache__/
 *.pyc
-.pytest_cache/
+.venv/
+venv/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Jenkins
+jenkins_home/
+
+# Environment
 .env
+
+# IDE
 .vscode/
 .idea/
