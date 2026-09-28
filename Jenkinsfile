@@ -25,18 +25,39 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t interactive-quiz-engine:${BUILD_NUMBER} .'
+                sh 'docker build -t kavinayaramesh13/interactive-quiz-engine:${BUILD_NUMBER} .'
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                        docker push kavinayaramesh13/interactive-quiz-engine:${BUILD_NUMBER}
+                        docker logout
+                    '''
+                }
             }
         }
     }
 
     post {
+
         success {
-            echo 'CI pipeline completed successfully!'
+            echo 'CI/CD pipeline completed successfully!'
         }
 
         failure {
-            echo 'CI pipeline failed. Check the stage logs.'
+            echo 'Pipeline failed. Check the stage logs.'
         }
     }
 }
