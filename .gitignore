@@ -19,3 +19,4 @@ jenkins_home/
 # IDE
 .vscode/
 .idea/
+terraform/terraform.tfstate
