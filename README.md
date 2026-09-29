@@ -350,56 +350,83 @@ Jenkins builds the Docker image using the project `Dockerfile`.
 
 The image is tagged using the Jenkins build number:
 
+```text
 kavinayaramesh13/interactive-quiz-engine:${BUILD_NUMBER}
-5. Docker Push
+```
+
+### 5. Docker Push
 
 The generated Docker image is pushed to Docker Hub using Jenkins credentials.
 
-🐳 Docker Hub
+---
+
+# 🐳 Docker Hub
 
 Docker Hub is used as the container image registry.
 
 Repository:
 
+```text
 kavinayaramesh13/interactive-quiz-engine
+```
 
 The Docker image is built and pushed by Jenkins.
 
 Example:
 
+```text
 kavinayaramesh13/interactive-quiz-engine:4
+```
 
 Docker Hub acts as the bridge between the CI process and the Kubernetes deployment.
 
-☁️ AWS Infrastructure
+---
 
-The cloud infrastructure is hosted on Amazon Web Services (AWS).
+# ☁️ AWS Infrastructure
 
-The project uses Amazon EC2 instances to create the Kubernetes environment.
+The cloud infrastructure is hosted on **Amazon Web Services (AWS)**.
 
-AWS Region
+The project uses **Amazon EC2** instances to create the Kubernetes environment.
+
+## AWS Region
+
+```text
 ap-south-1
-EC2 Instance Type
+```
+
+## EC2 Instance Type
+
+```text
 t3.small
-Operating System
+```
+
+## Operating System
+
+```text
 Amazon Linux 2023
+```
 
 The infrastructure consists of:
 
-VPC
-Public subnet
-Internet Gateway
-Route table
-Security group
-Control plane EC2 instance
-Worker EC2 instance
-🏗️ Terraform — Infrastructure as Code
+* VPC
+* Public subnet
+* Internet Gateway
+* Route table
+* Security group
+* Control plane EC2 instance
+* Worker EC2 instance
+
+---
+
+# 🏗️ Terraform — Infrastructure as Code
 
 Terraform is used to provision the AWS infrastructure.
 
 Instead of manually creating AWS resources through the console, infrastructure is defined using Terraform configuration files.
 
-Terraform Files
+## Terraform Files
+
+```text
 terraform/
 ├── provider.tf
 ├── variables.tf
@@ -408,105 +435,136 @@ terraform/
 ├── compute.tf
 ├── outputs.tf
 └── .terraform.lock.hcl
-provider.tf
+```
+
+### `provider.tf`
 
 Defines the AWS provider and region.
 
-variables.tf
+### `variables.tf`
 
 Defines configurable project variables such as:
 
-AWS region
-Project name
-EC2 instance type
-network.tf
+* AWS region
+* Project name
+* EC2 instance type
+
+### `network.tf`
 
 Creates:
 
-VPC
-Subnet
-Internet Gateway
-Route table
-Route table association
-security.tf
+* VPC
+* Subnet
+* Internet Gateway
+* Route table
+* Route table association
+
+### `security.tf`
 
 Defines the security group and required network access.
 
-compute.tf
+### `compute.tf`
 
 Creates the EC2 instances used for the Kubernetes cluster.
 
-outputs.tf
+### `outputs.tf`
 
 Displays useful infrastructure outputs after Terraform deployment.
 
-🚀 Terraform Commands
+---
+
+# 🚀 Terraform Commands
 
 Initialize Terraform:
 
+```bash
 terraform init
+```
 
 Validate the configuration:
 
+```bash
 terraform validate
+```
 
 Create an execution plan:
 
+```bash
 terraform plan
+```
 
 Provision the infrastructure:
 
+```bash
 terraform apply
+```
 
 To remove the infrastructure when it is no longer required:
 
+```bash
 terraform destroy
+```
 
-terraform.tfstate is intentionally not stored in GitHub because Terraform state can contain infrastructure and environment information.
+> `terraform.tfstate` is intentionally not stored in GitHub because Terraform state can contain infrastructure and environment information.
 
-⚙️ Ansible
+---
+
+# ⚙️ Ansible
 
 Ansible is used for server configuration and automation after the AWS infrastructure is provisioned.
 
 Terraform answers:
 
-"What infrastructure should exist?"
+> "What infrastructure should exist?"
 
 Ansible answers:
 
-"How should those servers be configured?"
+> "How should those servers be configured?"
 
-Ansible Structure
+## Ansible Structure
+
+```text
 ansible/
 ├── ansible.cfg
 ├── inventory.ini
 └── site.yml
-Inventory
+```
+
+### Inventory
 
 The inventory defines the Kubernetes control plane and worker node.
 
+```text
 [control_plane]
 control
 
 [workers]
 worker
-Configuration
+```
+
+### Configuration
 
 The Ansible playbook automates the setup of the Kubernetes environment on the EC2 instances.
 
 Example execution:
 
+```bash
 ansible-playbook site.yml
+```
 
 The configuration was successfully applied to both the control plane and worker node.
 
-☸️ Kubernetes
+---
+
+# ☸️ Kubernetes
 
 Kubernetes is used to orchestrate the containerized Flask application.
 
-The project uses K3s, a lightweight Kubernetes distribution.
+The project uses **K3s**, a lightweight Kubernetes distribution.
 
-Cluster Architecture
+## Cluster Architecture
+
+```text
                  K3s Cluster
                      │
           ┌──────────┴──────────┐
@@ -522,58 +580,81 @@ Cluster Architecture
                   Pods
                      │
               Flask Containers
-📦 Kubernetes Deployment
+```
 
-The application is deployed using a Kubernetes Deployment.
+---
+
+# 📦 Kubernetes Deployment
+
+The application is deployed using a Kubernetes `Deployment`.
 
 The deployment is configured with:
 
+```text
 Replicas: 5
+```
 
 This means Kubernetes maintains five application Pods.
 
 The application container listens on:
 
+```text
 5000
+```
 
 The deployment also includes:
 
-Readiness probe
-Liveness probe
-CPU requests
-Memory requests
-CPU limits
-Memory limits
-Rolling update strategy
-🔄 Rolling Update
+* Readiness probe
+* Liveness probe
+* CPU requests
+* Memory requests
+* CPU limits
+* Memory limits
+* Rolling update strategy
 
-The Kubernetes deployment uses a RollingUpdate strategy.
+---
+
+# 🔄 Rolling Update
+
+The Kubernetes deployment uses a `RollingUpdate` strategy.
 
 Configuration:
 
+```yaml
 strategy:
   type: RollingUpdate
   rollingUpdate:
     maxUnavailable: 0
     maxSurge: 1
+```
 
 This allows Kubernetes to gradually replace old Pods with new Pods.
 
 The application image was updated from an earlier image version to:
 
+```text
 kavinayaramesh13/interactive-quiz-engine:4
+```
 
 The rollout was verified using:
 
+```bash
 sudo k3s kubectl rollout status deployment/interactive-quiz
+```
 
 Result:
 
+```text
 deployment "interactive-quiz" successfully rolled out
-⚖️ Kubernetes Service
+```
 
-A Kubernetes ClusterIP Service provides a stable internal endpoint for the application Pods.
+---
 
+# ⚖️ Kubernetes Service
+
+A Kubernetes `ClusterIP` Service provides a stable internal endpoint for the application Pods.
+
+```text
 User Request
      ↓
 Ingress
@@ -581,15 +662,19 @@ Ingress
 Service
      ↓
 One of the available Pods
+```
 
-The Service targets the application container running on port 5000.
+The Service targets the application container running on port `5000`.
 
-🌐 Kubernetes Ingress
+---
+
+# 🌐 Kubernetes Ingress
 
 Traefik is used as the Kubernetes Ingress controller.
 
 The Ingress routes HTTP traffic to the application Service.
 
+```text
 External HTTP Request
           ↓
        Traefik
@@ -597,25 +682,37 @@ External HTTP Request
    Kubernetes Service
           ↓
    Interactive Quiz Pods
+```
 
 This provides a controlled HTTP entry point into the application.
 
-📈 Scalability
+---
+
+# 📈 Scalability
 
 The application was configured with five replicas.
 
 The deployment was scaled using:
 
+```bash
 sudo k3s kubectl scale deployment interactive-quiz --replicas=5
+```
 
 The deployment was then verified using:
 
+```bash
 sudo k3s kubectl get deployment
+```
 
 The final deployment achieved:
 
+```text
 5/5 Pods Running
-❤️ Self-Healing
+```
+
+---
+
+# ❤️ Self-Healing
 
 Kubernetes continuously maintains the desired state defined by the Deployment.
 
@@ -625,84 +722,105 @@ Kubernetes automatically created a replacement Pod.
 
 The deployment returned to:
 
+```text
 5/5 Pods Running
+```
 
 This demonstrates Kubernetes' ability to automatically recover from Pod failure.
 
-🧪 Testing and Validation
+---
+
+# 🧪 Testing and Validation
 
 The application and infrastructure were validated at multiple stages.
 
-Application Testing
+## Application Testing
 
 Jenkins executes:
 
+```bash
 pytest -q
+```
 
 before creating the Docker image.
 
 This prevents a failed test build from proceeding to the Docker image stage.
 
-Kubernetes Deployment Verification
+## Kubernetes Deployment Verification
 
 The following command was used:
 
+```bash
 sudo k3s kubectl get pods -o wide
+```
 
-The final cluster showed five application Pods in the Running state.
+The final cluster showed five application Pods in the `Running` state.
 
-Endpoint Validation
+## Endpoint Validation
 
 The control plane endpoint was tested using:
 
+```bash
 curl -I http://<control-plane-private-ip>/
+```
 
 The worker endpoint was tested using:
 
+```bash
 curl -I http://<worker-private-ip>/
+```
 
 Both endpoints returned:
 
+```text
 HTTP 200 OK
-📊 Final Results
+```
+
+---
+
+# 📊 Final Results
 
 The project successfully demonstrated:
 
-✅ Flask-based interactive quiz application
-✅ Git-based source control
-✅ GitHub repository management
-✅ Automated Jenkins CI pipeline
-✅ Automated dependency installation
-✅ Automated testing
-✅ Docker image creation
-✅ Docker Hub image publishing
-✅ AWS infrastructure provisioning using Terraform
-✅ EC2-based Kubernetes infrastructure
-✅ Server configuration using Ansible
-✅ K3s Kubernetes cluster
-✅ Five application replicas
-✅ Kubernetes Service
-✅ Traefik Ingress
-✅ Pod self-healing
-✅ Rolling updates
-✅ Successful application endpoint validation
-✅ HTTP 200 OK response
-🔐 Security Considerations
+* ✅ Flask-based interactive quiz application
+* ✅ Git-based source control
+* ✅ GitHub repository management
+* ✅ Automated Jenkins CI pipeline
+* ✅ Automated dependency installation
+* ✅ Automated testing
+* ✅ Docker image creation
+* ✅ Docker Hub image publishing
+* ✅ AWS infrastructure provisioning using Terraform
+* ✅ EC2-based Kubernetes infrastructure
+* ✅ Server configuration using Ansible
+* ✅ K3s Kubernetes cluster
+* ✅ Five application replicas
+* ✅ Kubernetes Service
+* ✅ Traefik Ingress
+* ✅ Pod self-healing
+* ✅ Rolling updates
+* ✅ Successful application endpoint validation
+* ✅ HTTP 200 OK response
 
-The following sensitive information should never be committed to the repository:
+---
 
-AWS access keys
-AWS secret keys
-AWS account credentials
-SSH private keys
-Docker Hub access tokens
-Jenkins passwords
-API keys
-.env files
-Terraform state files containing sensitive infrastructure information
+# 🔐 Security Considerations
 
-The project .gitignore excludes generated and sensitive files such as:
+The following sensitive information should **never be committed to the repository**:
 
+* AWS access keys
+* AWS secret keys
+* AWS account credentials
+* SSH private keys
+* Docker Hub access tokens
+* Jenkins passwords
+* API keys
+* `.env` files
+* Terraform state files containing sensitive infrastructure information
+
+The project `.gitignore` excludes generated and sensitive files such as:
+
+```text
 .terraform/
 *.tfstate
 *.tfstate.*
@@ -710,10 +828,15 @@ The project .gitignore excludes generated and sensitive files such as:
 venv/
 .env
 jenkins_home/
-📝 Important DevOps Distinction
+```
+
+---
+
+# 📝 Important DevOps Distinction
 
 The current implementation provides:
 
+```text
 GitHub
    ↓
 Jenkins
@@ -723,83 +846,101 @@ Testing
 Docker Build
    ↓
 Docker Hub
+```
 
 The Kubernetes deployment was performed separately using the Kubernetes environment provisioned and configured through Terraform and Ansible.
 
-Therefore, the current project demonstrates a DevOps CI pipeline and Kubernetes deployment, rather than a completely automated Jenkins-to-Kubernetes Continuous Deployment pipeline.
+Therefore, the current project demonstrates a **DevOps CI pipeline and Kubernetes deployment**, rather than a completely automated Jenkins-to-Kubernetes Continuous Deployment pipeline.
 
-🚀 Future Enhancements
+---
+
+# 🚀 Future Enhancements
 
 Possible future improvements include:
 
-Automated deployment from Jenkins directly to the Kubernetes cluster.
-Automated Kubernetes image updates after every successful Jenkins build.
-HTTPS/TLS configuration for the Ingress.
-Kubernetes Secrets for sensitive configuration.
-Horizontal Pod Autoscaler (HPA).
-Prometheus and Grafana monitoring.
-Centralized logging.
-Automated rollback on failed deployments.
-GitHub webhook-triggered Jenkins builds.
-Separate development, staging, and production environments.
-Persistent database-backed quiz questions and user results.
-📚 Key DevOps Concepts Demonstrated
-Concept	Implementation
-Version Control	Git
-Code Hosting	GitHub
-Continuous Integration	Jenkins
-Containerization	Docker
-Image Registry	Docker Hub
-Infrastructure as Code	Terraform
-Cloud Infrastructure	AWS EC2
-Configuration Management	Ansible
-Container Orchestration	Kubernetes
-Lightweight Kubernetes	K3s
-Reverse Proxy / Ingress	Traefik
-Scalability	5 Kubernetes replicas
-Self-Healing	Pod replacement
-Rolling Updates	Kubernetes Deployment
-Application Validation	HTTP 200 responses
-🎓 Learning Outcomes
+* Automated deployment from Jenkins directly to the Kubernetes cluster.
+* Automated Kubernetes image updates after every successful Jenkins build.
+* HTTPS/TLS configuration for the Ingress.
+* Kubernetes Secrets for sensitive configuration.
+* Horizontal Pod Autoscaler (HPA).
+* Prometheus and Grafana monitoring.
+* Centralized logging.
+* Automated rollback on failed deployments.
+* GitHub webhook-triggered Jenkins builds.
+* Separate development, staging, and production environments.
+* Persistent database-backed quiz questions and user results.
+
+---
+
+# 📚 Key DevOps Concepts Demonstrated
+
+| Concept                  | Implementation        |
+| ------------------------ | --------------------- |
+| Version Control          | Git                   |
+| Code Hosting             | GitHub                |
+| Continuous Integration   | Jenkins               |
+| Containerization         | Docker                |
+| Image Registry           | Docker Hub            |
+| Infrastructure as Code   | Terraform             |
+| Cloud Infrastructure     | AWS EC2               |
+| Configuration Management | Ansible               |
+| Container Orchestration  | Kubernetes            |
+| Lightweight Kubernetes   | K3s                   |
+| Reverse Proxy / Ingress  | Traefik               |
+| Scalability              | 5 Kubernetes replicas |
+| Self-Healing             | Pod replacement       |
+| Rolling Updates          | Kubernetes Deployment |
+| Application Validation   | HTTP 200 responses    |
+
+---
+
+# 🎓 Learning Outcomes
 
 This project provided practical experience with:
 
-Software version control.
-CI pipeline design.
-Automated application testing.
-Docker image creation and management.
-Container registries.
-Infrastructure as Code.
-AWS cloud infrastructure.
-Linux server configuration.
-Ansible automation.
-Kubernetes architecture.
-Kubernetes deployments and services.
-Ingress configuration.
-Application scalability.
-Self-healing infrastructure.
-Rolling application updates.
-End-to-end DevOps workflow implementation.
-👩‍💻 Author
+* Software version control.
+* CI pipeline design.
+* Automated application testing.
+* Docker image creation and management.
+* Container registries.
+* Infrastructure as Code.
+* AWS cloud infrastructure.
+* Linux server configuration.
+* Ansible automation.
+* Kubernetes architecture.
+* Kubernetes deployments and services.
+* Ingress configuration.
+* Application scalability.
+* Self-healing infrastructure.
+* Rolling application updates.
+* End-to-end DevOps workflow implementation.
 
-Kavinaya R
+---
+
+# 👩‍💻 Author
+
+**Kavinaya R**
 
 B.E. Computer Science and Engineering
 
 Rathinam Technical Campus
 
-📌 Project Repository
+---
 
-GitHub:
+# 📌 Project Repository
+
+**GitHub:**
 https://github.com/kavinayaramesh13/Interactive-Quiz-Engine
 
-Docker Hub:
+**Docker Hub:**
 https://hub.docker.com/r/kavinayaramesh13/interactive-quiz-engine
 
-⭐ Project Summary
+---
+
+# ⭐ Project Summary
 
 The Interactive Quiz Engine demonstrates how a Flask web application can be transformed into a cloud-deployed, containerized application using modern DevOps practices.
 
-The project integrates GitHub, Jenkins, Docker, Docker Hub, Terraform, AWS, Ansible, and Kubernetes into a practical workflow covering source control, automated testing, containerization, infrastructure provisioning, server configuration, scalable deployment, self-healing, rolling updates, and application validation.
+The project integrates **GitHub, Jenkins, Docker, Docker Hub, Terraform, AWS, Ansible, and Kubernetes** into a practical workflow covering source control, automated testing, containerization, infrastructure provisioning, server configuration, scalable deployment, self-healing, rolling updates, and application validation.
 
-The final Kubernetes deployment successfully maintained five running application replicas, supported self-healing after Pod failure, completed a rolling image update, and returned HTTP 200 OK during endpoint validation.
+The final Kubernetes deployment successfully maintained **five running application replicas**, supported self-healing after Pod failure, completed a rolling image update, and returned **HTTP 200 OK** during endpoint validation.
